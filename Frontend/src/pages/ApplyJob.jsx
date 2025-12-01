@@ -123,7 +123,7 @@ export default function ApplyJob() {
 
     try {
       await fetch(
-        "https://script.google.com/macros/s/AKfycbz-K0Y1PiGilWmheb4CQl6GKWN0l9qWYHXsCDlks0e6VdyIJ-X8zjQFGH3x4fC7amU/exec",
+        "https://script.google.com/macros/s/AKfycbxjMdfY9tDwHz8GsAZN1hrqpvIJNK2D9a8iUVIVy9DNic6UB8V4OFYQZctggpdNKd8/exec",
         {
           method: "POST",
           body: JSON.stringify(formToSend),
