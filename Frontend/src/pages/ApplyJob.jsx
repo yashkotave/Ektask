@@ -1,140 +1,112 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
-import { useLocation } from "react-router-dom";
 import { submitApplication } from "../redux/jobApplicationSlice";
 
 export default function ApplyJob() {
   const dispatch = useDispatch();
-  const location = useLocation();
 
   const [showPopup, setShowPopup] = useState(false);
-  const [countryCode, setCountryCode] = useState("+91");
-
+  const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
+
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbx-lcEonWYmUwcFqnNPJNGPi7KC8_Y5pUGXI8cLeuisEunifE0t-ZAdy7QxP4IUfW8/exec";
 
   const [form, setForm] = useState({
     fullname: "",
     email: "",
     phone: "",
+    country: "",
+    stateName: "",
+    district: "",
+    city: "",
+    address: "",
     role: "",
     experience: "",
     resume: "",
     fileName: "",
   });
 
-  // ⭐ STEP B — Read role from URL
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const urlRole = params.get("role");
-
-    if (urlRole) {
-      setForm((prev) => ({ ...prev, role: urlRole }));
-    }
-  }, [location.search]);
-
-  // VALIDATION FUNCTION
+  /* VALIDATION */
   const validateField = (name, value) => {
     switch (name) {
       case "fullname":
-        if (!value.trim()) return "Full name is required";
-        break;
+        return value.trim() ? "" : "Full name is required";
       case "email":
         if (!value.trim()) return "Email is required";
-        if (!/\S+@\S+\.\S+$/.test(value)) return "Enter a valid email";
-        break;
+        return /\S+@\S+\.\S+/.test(value) ? "" : "Enter valid email";
       case "phone":
-        if (!value.trim()) return "Phone number is required";
-
-        if (countryCode === "+91") {
-          if (!/^\d{10}$/.test(value))
-            return "Indian phone number must be exactly 10 digits";
-        } else {
-          if (value.length < 5) return "Enter a valid phone number";
-        }
-        break;
+        if (!value.trim()) return "Phone is required";
+        return /^\d{10}$/.test(value)
+          ? ""
+          : "Phone must be exactly 10 digits";
+      case "country":
+        return value.trim() ? "" : "Country is required";
+      case "stateName":
+        return value.trim() ? "" : "State is required";
+      case "district":
+        return value.trim() ? "" : "District is required";
+      case "city":
+        return value.trim() ? "" : "City is required";
+      case "address":
+        return value.trim() ? "" : "Address is required";
       case "role":
-        if (!value.trim()) return "Please select a job role";
-        break;
-
+        return value.trim() ? "" : "Role is required";
       default:
         return "";
     }
-    return "";
   };
 
-  // ON CHANGE
+  /* HANDLE CHANGE */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let newValue = value;
 
-    if (name === "phone") {
-      newValue = newValue.replace(/\D/g, "");
-      newValue =
-        countryCode === "+91"
-          ? newValue.slice(0, 10)
-          : newValue.slice(0, 15);
-    }
+    let val = value;
+    if (name === "phone") val = val.replace(/\D/g, "").slice(0, 10);
 
-    setForm({ ...form, [name]: newValue });
+    setForm({ ...form, [name]: val });
 
     if (touched[name]) {
-      setErrors({ ...errors, [name]: validateField(name, newValue) });
+      setErrors({ ...errors, [name]: validateField(name, val) });
     }
   };
 
-  // ON BLUR
+  /* HANDLE BLUR */
   const handleBlur = (e) => {
     const { name, value } = e.target;
-
     setTouched({ ...touched, [name]: true });
     setErrors({ ...errors, [name]: validateField(name, value) });
   };
 
-  // VALIDATE ALL BEFORE SUBMIT
+  /* VALIDATE ALL */
   const validateAll = () => {
-    let newErrors = {};
+    let newErr = {};
     Object.keys(form).forEach((key) => {
-      const error = validateField(key, form[key]);
-      if (error) newErrors[key] = error;
+      const err = validateField(key, form[key]);
+      if (err) newErr[key] = err;
     });
-
-    setErrors(newErrors);
-    setTouched({
-      fullname: true,
-      email: true,
-      phone: true,
-      role: true,
-    });
-
-    return Object.keys(newErrors).length === 0;
+    setErrors(newErr);
+    return Object.keys(newErr).length === 0;
   };
 
-  // SUBMIT HANDLER
+  /* SUBMIT */
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!validateAll()) return;
 
-    const formToSend = {
-      ...form,
-      phone: countryCode + " " + form.phone,
-    };
+    setLoading(true);
 
     try {
-      await fetch(
-        "https://script.google.com/macros/s/AKfycbxjMdfY9tDwHz8GsAZN1hrqpvIJNK2D9a8iUVIVy9DNic6UB8V4OFYQZctggpdNKd8/exec",
-        {
-          method: "POST",
-          body: JSON.stringify(formToSend),
-        }
-      );
-    } catch (error) {
-      alert("Error submitting form!");
+      await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify(form),
+      });
+    } catch {
+      alert("Error submitting form");
     }
 
-    dispatch(submitApplication(formToSend));
-
+    dispatch(submitApplication(form));
     setShowPopup(true);
     setTimeout(() => setShowPopup(false), 3000);
 
@@ -142,6 +114,11 @@ export default function ApplyJob() {
       fullname: "",
       email: "",
       phone: "",
+      country: "",
+      stateName: "",
+      district: "",
+      city: "",
+      address: "",
       role: "",
       experience: "",
       resume: "",
@@ -150,25 +127,26 @@ export default function ApplyJob() {
 
     setTouched({});
     setErrors({});
+    setLoading(false);
   };
 
   return (
-    <div className="pt-20 px-5 max-w-3xl mx-auto relative">
-      <h1 className="text-4xl font-bold text-center">Apply for Your Dream Job</h1>
+    <div className="pt-20 px-5 max-w-3xl mx-auto">
+      <h1 className="text-4xl font-bold text-center">Apply for a Job</h1>
       <p className="text-gray-600 text-center mt-2 mb-10">
-        Fill your details and we will contact you soon.
+        Fill the form carefully.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 shadow-lg rounded-xl">
-
-        {/* NAME */}
+      <form
+        onSubmit={handleSubmit}
+        className="space-y-6 bg-white p-8 shadow-lg rounded-xl"
+      >
+        {/* FULL NAME */}
         <div>
-          <label className="block font-semibold mb-2">
+          <label className="font-semibold">
             Full Name <span className="text-red-500">*</span>
           </label>
-
           <input
-            type="text"
             name="fullname"
             value={form.fullname}
             onChange={handleChange}
@@ -176,21 +154,21 @@ export default function ApplyJob() {
             className={`w-full px-4 py-3 border rounded-xl ${
               errors.fullname ? "border-red-500" : "border-gray-300"
             }`}
-            placeholder="Enter your full name"
+            placeholder="Enter full name"
           />
-
-          {errors.fullname && <p className="text-red-500 text-sm">{errors.fullname}</p>}
+          {errors.fullname && (
+            <p className="text-red-500 text-sm">{errors.fullname}</p>
+          )}
         </div>
 
         {/* EMAIL */}
         <div>
-          <label className="block font-semibold mb-2">
+          <label className="font-semibold">
             Email <span className="text-red-500">*</span>
           </label>
-
           <input
-            type="email"
             name="email"
+            type="email"
             value={form.email}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -199,56 +177,137 @@ export default function ApplyJob() {
             }`}
             placeholder="example@gmail.com"
           />
-
-          {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email}</p>
+          )}
         </div>
 
-        {/* PHONE + COUNTRY CODE */}
+        {/* PHONE */}
         <div>
-          <label className="block font-semibold mb-2">
-            Phone Number <span className="text-red-500">*</span>
+          <label className="font-semibold">
+            Phone <span className="text-red-500">*</span>
           </label>
-
-          <div className="flex gap-3">
-            <select
-              value={countryCode}
-              onChange={(e) => {
-                setCountryCode(e.target.value);
-                setErrors({ ...errors, phone: "" });
-              }}
-              className="px-3 py-3 border rounded-xl bg-gray-100"
-            >
-              <option value="+91">🇮🇳 +91 (India)</option>
-              <option value="+1">🇺🇸 +1 (USA)</option>
-              <option value="+44">🇬🇧 +44 (UK)</option>
-              <option value="+61">🇦🇺 +61 (Australia)</option>
-              <option value="+971">🇦🇪 +971 (UAE)</option>
-              <option value="+92">🇵🇰 +92 (Pakistan)</option>
-              <option value="+81">🇯🇵 +81 (Japan)</option>
-            </select>
-
-            <input
-              type="text"
-              name="phone"
-              value={form.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              className={`w-full px-4 py-3 border rounded-xl ${
-                errors.phone ? "border-red-500" : "border-gray-300"
-              }`}
-              placeholder={countryCode === "+91" ? "9876543210" : "Enter phone number"}
-            />
-          </div>
-
-          {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+          <input
+            name="phone"
+            value={form.phone}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.phone ? "border-red-500" : "border-gray-300"
+            }`}
+            placeholder="10 digit number"
+          />
+          {errors.phone && (
+            <p className="text-red-500 text-sm">{errors.phone}</p>
+          )}
         </div>
 
-        {/* ROLE (AUTO-FILLED VIA STEP B+C) */}
+        {/* COUNTRY */}
         <div>
-          <label className="block font-semibold mb-2">
+          <label className="font-semibold">
+            Country <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="country"
+            value={form.country}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="Country"
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.country ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.country && (
+            <p className="text-red-500 text-sm">{errors.country}</p>
+          )}
+        </div>
+
+        {/* STATE */}
+        <div>
+          <label className="font-semibold">
+            State <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="stateName"
+            value={form.stateName}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="State"
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.stateName ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.stateName && (
+            <p className="text-red-500 text-sm">{errors.stateName}</p>
+          )}
+        </div>
+
+        {/* DISTRICT */}
+        <div>
+          <label className="font-semibold">
+            District <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="district"
+            value={form.district}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="District"
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.district ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.district && (
+            <p className="text-red-500 text-sm">{errors.district}</p>
+          )}
+        </div>
+
+        {/* CITY */}
+        <div>
+          <label className="font-semibold">
+            City <span className="text-red-500">*</span>
+          </label>
+          <input
+            name="city"
+            value={form.city}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            placeholder="City"
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.city ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.city && (
+            <p className="text-red-500 text-sm">{errors.city}</p>
+          )}
+        </div>
+
+        {/* ADDRESS */}
+        <div>
+          <label className="font-semibold">
+            Address <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            name="address"
+            value={form.address}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            rows={3}
+            placeholder="Full address"
+            className={`w-full px-4 py-3 border rounded-xl ${
+              errors.address ? "border-red-500" : "border-gray-300"
+            }`}
+          />
+          {errors.address && (
+            <p className="text-red-500 text-sm">{errors.address}</p>
+          )}
+        </div>
+
+        {/* ROLE */}
+        <div>
+          <label className="font-semibold">
             Job Role <span className="text-red-500">*</span>
           </label>
-
           <select
             name="role"
             value={form.role}
@@ -258,103 +317,116 @@ export default function ApplyJob() {
               errors.role ? "border-red-500" : "border-gray-300"
             }`}
           >
-            <option value="">Select job role</option>
+            <option value="">Select Role</option>
             <option>Frontend Developer</option>
             <option>Backend Developer</option>
             <option>Graphic Designer</option>
             <option>Video Editor</option>
             <option>Digital Marketer</option>
-            <option>HR Executive</option>
             <option>Customer Support</option>
             <option>Sales Executive</option>
-            <option>Business Analyst</option>
           </select>
-
-          {errors.role && <p className="text-red-500 text-sm">{errors.role}</p>}
+          {errors.role && (
+            <p className="text-red-500 text-sm">{errors.role}</p>
+          )}
         </div>
 
         {/* EXPERIENCE */}
         <div>
-          <label className="block font-semibold mb-2">Experience (Optional)</label>
-
+          <label className="font-semibold">Experience (Optional)</label>
           <input
-            type="text"
             name="experience"
             value={form.experience}
             onChange={handleChange}
+            placeholder="Fresher / 1 year / 2 years..."
             className="w-full px-4 py-3 border rounded-xl"
-            placeholder="Fresher / 1 Year / 2 Years..."
           />
         </div>
 
-        {/* RESUME + LINK */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block font-semibold mb-2">Resume Link (Optional)</label>
+        {/* RESUME UPLOAD */}
+        <div>
+          <label className="font-semibold">Upload Resume (PDF)</label>
 
-            <input
-              type="text"
-              name="resume"
-              value={form.resume}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-xl"
-              placeholder="Paste Google Drive link"
-            />
-          </div>
+          <input
+            type="file"
+            id="resumeUpload"
+            accept=".pdf"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              setForm({
+                ...form,
+                fileName: file ? file.name : "",
+              });
+            }}
+          />
 
-          <div>
-            <label className="block font-semibold mb-2">Upload Resume (PDF)</label>
+          <button
+            type="button"
+            onClick={() =>
+              document.getElementById("resumeUpload").click()
+            }
+            className="px-4 py-3 bg-blue-600 text-white rounded-xl w-full"
+          >
+            {form.fileName ? "Change File" : "Upload Resume"}
+          </button>
 
-            <input
-              id="resumeUpload"
-              type="file"
-              accept=".pdf"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files[0];
-                setForm({ ...form, fileName: file ? file.name : "" });
-              }}
-            />
-
-            <button
-              type="button"
-              onClick={() => document.getElementById("resumeUpload").click()}
-              className="px-4 py-3 bg-blue-600 text-white rounded-xl w-full hover:bg-blue-700"
-            >
-              {form.fileName ? "Change File" : "Upload Resume"}
-            </button>
-
-            {form.fileName && (
-              <div className="mt-2 flex justify-between bg-gray-100 py-2 px-3 rounded-lg">
-                <p>{form.fileName}</p>
-                <button
-                  type="button"
-                  onClick={() => setForm({ ...form, fileName: "" })}
-                  className="text-red-500 font-semibold"
-                >
-                  Remove
-                </button>
-              </div>
-            )}
-          </div>
+          {form.fileName && (
+            <div className="mt-2 bg-gray-100 py-2 px-3 rounded-xl flex justify-between">
+              <span>{form.fileName}</span>
+              <button
+                type="button"
+                onClick={() => setForm({ ...form, fileName: "" })}
+                className="text-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          )}
         </div>
 
         {/* SUBMIT */}
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl text-lg"
+          disabled={loading}
+          className={`w-full py-3 rounded-xl text-lg text-white ${
+            loading
+              ? "bg-gray-400"
+              : "bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90"
+          }`}
         >
-          Submit Application
+          {loading ? "Submitting..." : "Submit Application"}
         </button>
       </form>
 
       {/* SUCCESS POPUP */}
       {showPopup && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black/40 backdrop-blur-sm z-50">
-          <div className="bg-white p-8 rounded-2xl shadow-xl text-center">
-            <div className="text-green-500 text-5xl mb-3">✔</div>
-            <h2 className="text-2xl font-bold mb-1">Application Submitted!</h2>
-            <p className="text-gray-600">We will contact you soon.</p>
+        <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+          <div className="bg-white p-10 rounded-2xl shadow-xl text-center animate-popup">
+            <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="green"
+                className="w-12 h-12"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M4.5 12.75l6 6 9-13.5"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-3xl font-bold text-green-600 mt-4">
+              Application Submitted!
+            </h2>
+
+            <p className="text-gray-600 mt-1 text-lg">
+              Thank you! We will contact you shortly.
+            </p>
           </div>
         </div>
       )}

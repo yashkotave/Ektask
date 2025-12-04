@@ -1,0 +1,112 @@
+{
+  "Maharashtra": [
+    "Mumbai",
+    "Mumbai Suburban",
+    "Pune",
+    "Thane",
+    "Nashik",
+    "Nagpur",
+    "Aurangabad",
+    "Kolhapur",
+    "Satara"
+  ],
+  "Madhya Pradesh": [
+    "Indore",
+    "Bhopal",
+    "Ujjain",
+    "Jabalpur",
+    "Gwalior",
+    "Ratlam",
+    "Dhar",
+    "Khargone"
+  ],
+  "Uttar Pradesh": [
+    "Lucknow",
+    "Kanpur",
+    "Varanasi",
+    "Prayagraj",
+    "Ghaziabad",
+    "Agra",
+    "Noida",
+    "Meerut"
+  ],
+  "Bihar": [
+    "Patna",
+    "Gaya",
+    "Bhagalpur",
+    "Muzaffarpur",
+    "Nalanda"
+  ],
+  "Rajasthan": [
+    "Jaipur",
+    "Udaipur",
+    "Jodhpur",
+    "Kota",
+    "Ajmer"
+  ],
+  "Gujarat": [
+    "Ahmedabad",
+    "Surat",
+    "Vadodara",
+    "Rajkot",
+    "Gandhinagar"
+  ],
+  "Karnataka": [
+    "Bengaluru",
+    "Mysuru",
+    "Mangalore",
+    "Hubli",
+    "Belagavi"
+  ],
+  "Tamil Nadu": [
+    "Chennai",
+    "Coimbatore",
+    "Madurai",
+    "Salem",
+    "Tiruchirappalli"
+  ],
+  "Kerala": [
+    "Kochi",
+    "Thiruvananthapuram",
+    "Kozhikode",
+    "Thrissur"
+  ],
+  "Telangana": [
+    "Hyderabad",
+    "Warangal",
+    "Nizamabad",
+    "Karimnagar"
+  ],
+  "Andhra Pradesh": [
+    "Vijayawada",
+    "Visakhapatnam",
+    "Guntur",
+    "Nellore"
+  ],
+  "Punjab": [
+    "Amritsar",
+    "Ludhiana",
+    "Jalandhar",
+    "Patiala"
+  ],
+  "Haryana": [
+    "Gurugram",
+    "Faridabad",
+    "Hisar",
+    "Rohtak"
+  ],
+  "Delhi": [
+    "New Delhi",
+    "South Delhi",
+    "North Delhi",
+    "East Delhi",
+    "West Delhi"
+  ],
+  "West Bengal": [
+    "Kolkata",
+    "Howrah",
+    "Darjeeling",
+    "Siliguri"
+  ]
+}
+    
