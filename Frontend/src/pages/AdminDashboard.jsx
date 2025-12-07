@@ -1,66 +1,54 @@
-import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
 
 export default function AdminDashboard() {
-  const applications = useSelector(
-    (state) => state.applications.applications
-  );
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const API_URL =
+    "https://script.google.com/macros/s/AKfycbxTgu1gIDPNjq4BTA6MreSUTOFsSx_PnTfzdeBElsJZjxKoOp8Pg8Fixc545xfnXr4/exec";
+
+  useEffect(() => {
+    fetch(API_URL)
+      .then(res => res.json())
+      .then((d) => {
+        setData(d);
+        setLoading(false);
+      })
+      .catch(() => {
+        alert("Failed to load data!");
+        setLoading(false);
+      });
+  }, []);
 
   return (
-    <div className="pt-20 px-5 max-w-6xl mx-auto">
-      <h1 className="text-3xl md:text-4xl font-extrabold mb-2">
-        Admin Dashboard
+    <div className="pt-20 px-8">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Admin Dashboard – Applications
       </h1>
-      <p className="text-gray-600 mb-6">
-        View all job applications submitted from the Apply Job form.
-      </p>
 
-      {applications.length === 0 ? (
-        <p className="text-gray-500">
-          No applications received yet. Ask someone to submit the form first 🙂
-        </p>
+      {loading ? (
+        <p className="text-center text-xl">Loading...</p>
       ) : (
-        <div className="overflow-x-auto border border-gray-200 rounded-xl">
-          <table className="min-w-full text-sm md:text-base">
-            <thead className="bg-gray-100">
+        <div className="overflow-auto">
+          <table className="w-full border border-gray-300">
+            <thead className="bg-blue-600 text-white">
               <tr>
-                <th className="border px-3 py-2 text-left">#</th>
-                <th className="border px-3 py-2 text-left">Name</th>
-                <th className="border px-3 py-2 text-left">Email</th>
-                <th className="border px-3 py-2 text-left">Phone</th>
-                <th className="border px-3 py-2 text-left">Role</th>
-                <th className="border px-3 py-2 text-left">Experience</th>
-                <th className="border px-3 py-2 text-left">Resume Link</th>
-                <th className="border px-3 py-2 text-left">File</th>
+                {Object.keys(data[0] || {}).map((key) => (
+                  <th key={key} className="p-3 border border-gray-300">
+                    {key}
+                  </th>
+                ))}
               </tr>
             </thead>
+
             <tbody>
-              {applications.map((app, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="border px-3 py-2">{index + 1}</td>
-                  <td className="border px-3 py-2">{app.fullname}</td>
-                  <td className="border px-3 py-2">{app.email}</td>
-                  <td className="border px-3 py-2">{app.phone}</td>
-                  <td className="border px-3 py-2">{app.role}</td>
-                  <td className="border px-3 py-2">
-                    {app.experience || "-"}
-                  </td>
-                  <td className="border px-3 py-2">
-                    {app.resume ? (
-                      <a
-                        href={app.resume}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 underline"
-                      >
-                        Open
-                      </a>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                  <td className="border px-3 py-2">
-                    {app.fileName || "-"}
-                  </td>
+              {data.map((row, i) => (
+                <tr key={i} className="odd:bg-gray-100 even:bg-white">
+                  {Object.values(row).map((val, j) => (
+                    <td key={j} className="p-3 border border-gray-300">
+                      {String(val)}
+                    </td>
+                  ))}
                 </tr>
               ))}
             </tbody>
