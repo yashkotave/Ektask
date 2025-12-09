@@ -27,15 +27,18 @@ export default function AdminDashboard() {
         Admin Dashboard – Applications
       </h1>
 
-      {/* 🔍 SEARCH BAR */}
+      {/* ✅ SEARCH BAR (NO REFRESH ISSUE) */}
       {!loading && (
         <div className="max-w-md mx-auto mb-6">
           <input
-            type="text"
-            placeholder="Search by name, email, phone, role..."
+            type="search"
+            placeholder="Search by name, email, phone, role, city..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full px-4 py-2 border rounded-xl shadow-sm"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
+            }}
+            className="w-full px-4 py-2 border rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       )}
@@ -48,7 +51,10 @@ export default function AdminDashboard() {
             <thead className="bg-blue-600 text-white">
               <tr>
                 {Object.keys(data[0] || {}).map((key) => (
-                  <th key={key} className="p-3 border border-gray-300">
+                  <th
+                    key={key}
+                    className="p-3 border border-gray-300 text-left whitespace-nowrap"
+                  >
                     {key}
                   </th>
                 ))}
@@ -58,19 +64,22 @@ export default function AdminDashboard() {
             <tbody>
               {data
                 .filter((row) => {
+                  if (!search.trim()) return true;
+
                   const text = search.toLowerCase();
-                  return (
-                    row["Full Name"]?.toLowerCase().includes(text) ||
-                    row["Email"]?.toLowerCase().includes(text) ||
-                    row["Phone"]?.toLowerCase().includes(text) ||
-                    row["Role"]?.toLowerCase().includes(text) ||
-                    row["City"]?.toLowerCase().includes(text)
-                  );
+
+                  return Object.values(row)
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(text);
                 })
                 .map((row, i) => (
                   <tr key={i} className="odd:bg-gray-100 even:bg-white">
                     {Object.values(row).map((val, j) => (
-                      <td key={j} className="p-3 border border-gray-300">
+                      <td
+                        key={j}
+                        className="p-3 border border-gray-300 whitespace-nowrap"
+                      >
                         {String(val)}
                       </td>
                     ))}
