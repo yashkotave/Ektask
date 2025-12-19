@@ -9,12 +9,12 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
 
+  const statusOptions = ["Pending", "Reviewed", "Selected", "Rejected"];
+
   const API_URL =
     "https://script.google.com/macros/s/AKfycbxTgu1gIDPNjq4BTA6MreSUTOFsSx_PnTfzdeBElsJZjxKoOp8Pg8Fixc545xfnXr4/exec";
 
-  /* -------------------------------------------------------  
-      FETCH ALL DATA ON LOAD  
-  ------------------------------------------------------- */
+  /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
     fetch(API_URL)
       .then((res) => res.json())
@@ -29,9 +29,7 @@ export default function AdminDashboard() {
       });
   }, []);
 
-  /* -------------------------------------------------------  
-      FILTER LOGIC (SEARCH + ROLE)  
-  ------------------------------------------------------- */
+  /* ---------------- SEARCH + ROLE FILTER ---------------- */
   useEffect(() => {
     const searchText = search.toLowerCase();
 
@@ -52,9 +50,7 @@ export default function AdminDashboard() {
     setFiltered(result);
   }, [search, roleFilter, data]);
 
-  /* -------------------------------------------------------  
-      EXPORT TO EXCEL  
-  ------------------------------------------------------- */
+  /* ---------------- EXPORT TO EXCEL ---------------- */
   const handleExport = () => {
     if (filtered.length === 0) {
       alert("No data to export!");
@@ -67,17 +63,15 @@ export default function AdminDashboard() {
     XLSX.writeFile(workbook, "ektask_applications.xlsx");
   };
 
-  /* -------------------------------------------------------  
-      UI START  
-  ------------------------------------------------------- */
+  /* ---------------- UI ---------------- */
   return (
     <div className="pt-20 px-5 md:px-10">
       <h1 className="text-3xl font-bold text-center mb-8">
         Admin Dashboard — Applications
       </h1>
 
-      {/* -------------------- SEARCH BAR -------------------- */}
-      <div className="max-w-md mx-auto mb-6">
+      {/* SEARCH */}
+      <div className="max-w-md mx-auto mb-4">
         <input
           type="text"
           placeholder="Search by name, email, phone, role..."
@@ -87,35 +81,35 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* -------------------- ROLE FILTER -------------------- */}
-      <div className="max-w-md mx-auto mb-6">
+      {/* ROLE FILTER */}
+      <div className="max-w-md mx-auto mb-4">
         <select
           value={roleFilter}
           onChange={(e) => setRoleFilter(e.target.value)}
           className="w-full px-4 py-2 border rounded-xl shadow-sm"
         >
           <option value="">All Roles</option>
-          <option value="Frontend Developer">Frontend Developer</option>
-          <option value="Backend Developer">Backend Developer</option>
-          <option value="Graphic Designer">Graphic Designer</option>
-          <option value="Video Editor">Video Editor</option>
-          <option value="Digital Marketer">Digital Marketer</option>
-          <option value="Customer Support">Customer Support</option>
-          <option value="Sales Executive">Sales Executive</option>
+          <option>Frontend Developer</option>
+          <option>Backend Developer</option>
+          <option>Graphic Designer</option>
+          <option>Video Editor</option>
+          <option>Digital Marketer</option>
+          <option>Customer Support</option>
+          <option>Sales Executive</option>
         </select>
       </div>
 
-      {/* -------------------- EXPORT BUTTON -------------------- */}
+      {/* EXPORT */}
       <div className="text-center mb-6">
         <button
           onClick={handleExport}
-          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow-md"
+          className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl"
         >
           Export to Excel
         </button>
       </div>
 
-      {/* -------------------- TABLE -------------------- */}
+      {/* TABLE */}
       {loading ? (
         <p className="text-center text-xl">Loading...</p>
       ) : (
@@ -134,9 +128,22 @@ export default function AdminDashboard() {
             <tbody>
               {filtered.map((row, i) => (
                 <tr key={i} className="odd:bg-gray-100 even:bg-white">
-                  {Object.values(row).map((val, j) => (
+                  {Object.entries(row).map(([key, val], j) => (
                     <td key={j} className="p-3 border">
-                      {String(val)}
+                      {key === "Status" ? (
+                        <select
+                          value={val}
+                          className="border rounded px-2 py-1"
+                        >
+                          {statusOptions.map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        String(val)
+                      )}
                     </td>
                   ))}
                 </tr>
