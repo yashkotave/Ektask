@@ -10,8 +10,7 @@ export default function Navbar() {
     { title: "Services", path: "/services" },
     { title: "Jobs", path: "/jobs" },
     { title: "Testimonials", path: "/testimonials" },
-    { title: "Contact", path: "/contact" },
-    { title: "Dashboard", path: "/admin-dashboard" }, // <-- 👈 ADDED HERE
+    { title: "Contact", path: "/contact" }, // <-- 👈 ADDED HERE
   ];
 
   return (
