@@ -13,13 +13,13 @@ const API_URL =
 
 // Available job positions
 const JOB_ROLES = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Graphic Designer",
-  "Video Editor",
-  "Digital Marketer",
-  "Customer Support",
-  "Sales Executive",
+  "Exam Lab Invigilator",
+  "System Operator",
+  "Field Sales Executive",
+  "Tele Caller",
+  "HR executive",
+  "Customer Support Executive",
+  "Telesales Executive",
 ];
 
 // Form field configuration

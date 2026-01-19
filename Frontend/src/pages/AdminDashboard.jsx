@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
+import { logoutAdmin } from "../features/auth/authSlice";
 
 export default function AdminDashboard() {
   const [data, setData] = useState([]);
@@ -9,10 +12,19 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
 
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const statusOptions = ["Pending", "Reviewed", "Selected", "Rejected"];
 
   const API_URL =
     "https://script.google.com/macros/s/AKfycbxTgu1gIDPNjq4BTA6MreSUTOFsSx_PnTfzdeBElsJZjxKoOp8Pg8Fixc545xfnXr4/exec";
+
+  /* ---------------- LOGOUT HANDLER ---------------- */
+  const handleLogout = () => {
+    dispatch(logoutAdmin());
+    navigate("/admin-login");
+  };
 
   /* ---------------- FETCH DATA ---------------- */
   useEffect(() => {
@@ -36,13 +48,9 @@ export default function AdminDashboard() {
     const result = data.filter((row) => {
       const matchesSearch =
         !searchText ||
-        Object.values(row)
-          .join(" ")
-          .toLowerCase()
-          .includes(searchText);
+        Object.values(row).join(" ").toLowerCase().includes(searchText);
 
-      const matchesRole =
-        !roleFilter || row["Role"] === roleFilter;
+      const matchesRole = !roleFilter || row["Role"] === roleFilter;
 
       return matchesSearch && matchesRole;
     });
@@ -66,9 +74,16 @@ export default function AdminDashboard() {
   /* ---------------- UI ---------------- */
   return (
     <div className="pt-20 px-5 md:px-10">
-      <h1 className="text-3xl font-bold text-center mb-8">
-        Admin Dashboard — Applications
-      </h1>
+      {/* Header with Logout */}
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold">Admin Dashboard — Applications</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl transition"
+        >
+          Logout
+        </button>
+      </div>
 
       {/* SEARCH */}
       <div className="max-w-md mx-auto mb-4">

@@ -1,22 +1,21 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Footer from "./components/Footer";
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
-import Home from "./pages/Home";
-import Services from "./pages/Services";
-import Jobs from "./pages/Jobs";
-import ApplyJob from "./pages/ApplyJob";
-import Testimonials from "./pages/Testimonials";
-import Contact from "./pages/Contact";
-import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-
+import AdminLogin from "./pages/AdminLogin";
+import ApplyJob from "./pages/ApplyJob";
+import Contact from "./pages/Contact";
+import Home from "./pages/Home";
+import Jobs from "./pages/Jobs";
+import Services from "./pages/Services";
+import Testimonials from "./pages/Testimonials";
 
 function App() {
   return (
     <BrowserRouter>
-
       {/* Navbar will appear on all pages */}
       <Navbar />
 
@@ -28,12 +27,20 @@ function App() {
         <Route path="/apply" element={<ApplyJob />} />
         <Route path="/testimonials" element={<Testimonials />} />
         <Route path="/contact" element={<Contact />} />
-        <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+
+        {/* Admin Routes - Hidden from normal users (no button on frontend) */}
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route
+          path="/admin-dashboard"
+          element={
+            <ProtectedRoute>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
 
-    <Footer />  
-
+      <Footer />
     </BrowserRouter>
   );
 }
